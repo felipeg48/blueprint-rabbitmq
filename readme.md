@@ -18,16 +18,26 @@ as a java object run:
     git checkout message-listener-adapter
 
 ## Running It
-Whenever you check out a tag or branch the first thing you should do is run 
+All of these examples use [gradle](http://www.gradle.org) to build. 
+
+Whenever you check out a tag or branch the first thing you should do (if running eclipse) is run 
 
     gradle eclipse
 
-Fromt he root of the project. Then from eclipse import the directory and it
+from the root of the project. Then from eclipse import the directory and it
 should bring all of the subprojects in to your workspace.
 
+### Non-Webcontainer Examples
 Running the ApplicationConfig from the consumer will start the consumer up,
 running the same class from the producer will start the producer up and publish
 some test messages.
+
+### WebContainer Examples
+Most of the webcontainer based examples use jettyRun to run. Always run gradle tasks from the root of the directory to double check. To run the consumer in this case you'd run
+
+    gradle consumer:jettyRun
+    
+from the commandline to start it up. For those most part these kind of examples tend to use JNDI.
 
 Have fun!
 
