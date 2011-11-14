@@ -1,19 +1,31 @@
 package com.carfax.blueprint.amqp;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.aopalliance.aop.Advice;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.config.StatefulRetryOperationsInterceptorFactoryBean;
+import org.springframework.amqp.rabbit.config.StatelessRetryOperationsInterceptorFactoryBean;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
+import org.springframework.amqp.rabbit.retry.MessageKeyGenerator;
+import org.springframework.amqp.rabbit.retry.MessageRecoverer;
 import org.springframework.amqp.support.converter.JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +37,8 @@ import org.springframework.retry.backoff.BackOffContext;
 import org.springframework.retry.backoff.BackOffInterruptedException;
 import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
+import org.springframework.retry.interceptor.RetryOperationsInterceptor;
+import org.springframework.retry.interceptor.StatefulRetryOperationsInterceptor;
 import org.springframework.retry.listener.RetryListenerSupport;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
@@ -43,6 +57,17 @@ public class ApplicationConfig {
 	@Bean
 	Queue serviceQueue(){
 		return new Queue("service_vehicles");
+	}
+	@Bean
+	Queue errorQueue(){
+		return new Queue("error.queue");
+	}
+	@Bean
+	public AmqpTemplate errorTemplate(){
+		RabbitTemplate rabbitTemplate = new RabbitTemplate(amqpConnectionFactory);
+		rabbitTemplate.setRoutingKey("error.queue");
+		rabbitTemplate.setMessageConverter(new JsonMessageConverter());
+		return rabbitTemplate;
 	}
 	@Bean
 	Binding stolenBinding(){
@@ -85,13 +110,27 @@ public class ApplicationConfig {
 	@Bean
 	public Advice retryInterceptor(){
 		StatefulRetryOperationsInterceptorFactoryBean retry = new StatefulRetryOperationsInterceptorFactoryBean();
-		RetryTemplate retryTemplate = new RetryTemplate();
-		retryTemplate.setRetryPolicy(new SimpleRetryPolicy());
-	
-		retry.setRetryOperations(retryTemplate);
+		retry.setRetryOperations(retryTemplate());
+		retry.setMessageKeyGeneretor(bodyBasedKeyGenerator());
+		retry.setMessageRecoverer(errorQueueRecoverer());
 		return retry.getObject();
 	}
-	
+	@Bean
+	RetryTemplate retryTemplate(){
+		RetryTemplate retryTemplate = new RetryTemplate();
+		SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
+		retryPolicy.setMaxAttempts(3);
+		retryTemplate.setRetryPolicy(retryPolicy);
+		return retryTemplate;
+	}
+	@Bean
+	public MessageKeyGenerator bodyBasedKeyGenerator() {
+		return new BodyBasedKeyGenerator();
+	}
+	@Bean(autowire=Autowire.BY_NAME)
+	public MessageRecoverer errorQueueRecoverer() {
+		return new ErrorQueueMessageRecoverer();
+	}
 	private ErrorHandler errorHandler() {
 		return new LoggingErrorHandler(LoggerFactory.getLogger("blueprint-rabbitmq-consumer"));
 	}
