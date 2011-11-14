@@ -39,3 +39,4 @@ exchange
 * topic-exchange-example-multiple-queues - illustrates using multiple queues
 with a single exchange
 * xml-based-config - an example using XML instead of Java based Spring Configuration
+* dead-letter-example - An example of implementing a dead letter queue (http://eaipatterns.com/DeadLetterChannel.html) using an Advice in the SimpleMessageListenerContainer
