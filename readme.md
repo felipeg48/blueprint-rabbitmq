@@ -40,3 +40,6 @@ exchange
 with a single exchange
 * xml-based-config - an example using XML instead of Java based Spring Configuration
 * dead-letter-example - An example of implementing a dead letter queue (http://eaipatterns.com/DeadLetterChannel.html) using an Advice in the SimpleMessageListenerContainer
+                    
+## Installing RabbitMQ
+Don't have rabbitMQ installed? Either change the host to dev.rabbitmq.com for the public rabbitMQ broker or follow the instructions on the site for [windows](http://www.rabbitmq.com/install.html#windows) or [linux](http://www.rabbitmq.com/install.html#rpm).
