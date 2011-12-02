@@ -1,13 +1,10 @@
 package com.carfax.blueprint.amqp;
 
 
-import javax.annotation.Resource;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
@@ -21,6 +18,7 @@ import org.springframework.context.annotation.ImportResource;
 @Configuration
 @ImportResource("classpath:com/carfax/blueprint/amqp/jndi-context.xml")
 public class ApplicationConfig {
+	private static final Logger LOGGER = LoggerFactory.getLogger(ApplicationConfig.class);
 	@Autowired
 	ConnectionFactory amqpConnectionFactory;
 	
@@ -40,6 +38,7 @@ public class ApplicationConfig {
 		container.setAutoStartup(true);
 		container.setConcurrentConsumers(2);
 		container.setMessageListener(messageListener());
+		container.setErrorHandler(new LoggingErrorHandler(LOGGER));
 		return container;
 	}
 	
