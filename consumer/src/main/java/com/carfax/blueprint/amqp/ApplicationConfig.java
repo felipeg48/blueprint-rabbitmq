@@ -42,6 +42,8 @@ public class ApplicationConfig {
 		container.setMessageListener(messageListener());
 		return container;
 	}
+	
+	
 	@Bean
 	public MessageListener messageListener() {
 		return new MessageListenerAdapter(new VehicleChangeListener(), new JsonMessageConverter());

@@ -7,7 +7,6 @@
 		<Arg>
 			 <New class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
                  <Set name="host">localhost</Set>
-                 
          	</New> 
 		</Arg>
 	</New>
