@@ -32,8 +32,13 @@ public class ApplicationConfig {
 	AmqpTemplate amqpTemplate(){
 		RabbitTemplate template = new RabbitTemplate(amqpConnectionFactory());
 		template.setRoutingKey("vehicle.changes");
-		template.setMessageConverter(new JsonMessageConverter());
+		template.setMessageConverter(messageConverter());
 		return template;
+	}
+	private JsonMessageConverter messageConverter() {
+		JsonMessageConverter jsonMessageConverter = new JsonMessageConverter();
+		jsonMessageConverter.setCreateMessageIds(true);
+		return jsonMessageConverter;
 	}
 	
 	@Bean(autowire=Autowire.BY_NAME)
