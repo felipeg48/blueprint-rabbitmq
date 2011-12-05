@@ -4,6 +4,8 @@ package com.carfax.blueprint.amqp;
 import org.aopalliance.aop.Advice;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Exchange;
 import org.springframework.amqp.core.MessageListener;
 import org.springframework.amqp.core.Queue;
@@ -33,12 +35,14 @@ public class ApplicationConfig {
 	ConnectionFactory amqpConnectionFactory;
 	@Autowired
 	StubMessageRecoverer messageRecoverer;
-	@Autowired
-	ConnectionFactory connectionFactory;
 	
 	@Bean
 	Queue queue(){
 		return new Queue("vehicle.changes");
+	}
+	@Bean
+	Queue errorQueue(){
+		return new Queue("vehicle.errors");
 	}
 	@Bean
 	RabbitAdmin rabbitAdmin(){
@@ -46,13 +50,16 @@ public class ApplicationConfig {
 	}
 	@Bean
 	RabbitTemplate rabbitPublisher(){
-		return new RabbitTemplate(connectionFactory);
+		return new RabbitTemplate(amqpConnectionFactory);
 	}
 	@Bean
-	Exchange exchange(){
+	TopicExchange exchange(){
 		return new TopicExchange("errors");
 	}
-	
+	@Bean
+	public Binding errorBinding(){
+		return BindingBuilder.bind(errorQueue()).to(exchange()).with("vehicle.changes");
+	}
 	@Bean
 	public SimpleMessageListenerContainer container(){
 		SimpleMessageListenerContainer container= new SimpleMessageListenerContainer(amqpConnectionFactory);
@@ -66,6 +73,20 @@ public class ApplicationConfig {
 		return container;
 	}
 	
+	@Bean
+	public SimpleMessageListenerContainer errorListenerContainer(){
+		SimpleMessageListenerContainer container= new SimpleMessageListenerContainer(amqpConnectionFactory);
+		container.setQueueNames("vehicle.errors");
+		container.setAutoStartup(true);
+		container.setConcurrentConsumers(2);
+		container.setMessageListener(errorMessageListener());
+		container.setErrorHandler(new LoggingErrorHandler(LOGGER));
+		return container;
+	}
+	@Bean
+	public MessageListener errorMessageListener() {
+		return new ErrorMessageListener();
+	}
 	@Bean
 	public StatefulRetryOperationsInterceptor retryHandler() {
 		StatefulRetryOperationsInterceptorFactoryBean retryOperationsInterceptor = new StatefulRetryOperationsInterceptorFactoryBean();
@@ -86,12 +107,12 @@ public class ApplicationConfig {
 	}
 	private FixedBackOffPolicy backOffPolicy() {
 		FixedBackOffPolicy fixedBackOffPolicy = new FixedBackOffPolicy();
-		fixedBackOffPolicy.setBackOffPeriod(500);
+		fixedBackOffPolicy.setBackOffPeriod(5000);
 		return fixedBackOffPolicy;
 	}
 	private SimpleRetryPolicy retryPolicy() {
 		SimpleRetryPolicy simpleRetryPolicy = new SimpleRetryPolicy();
-		simpleRetryPolicy.setMaxAttempts(2);
+		simpleRetryPolicy.setMaxAttempts(3);
 		return simpleRetryPolicy;
 	}
 	@Bean
