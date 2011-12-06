@@ -15,6 +15,13 @@ or
 From the root of the project to build the project files for your preferred IDE.
 
 Running the consumer:
+
     gradle consumer:jettyRun
     
-Running the producer requires you to run the AppConfig class from your IDE (for now) to publish a message.
+Running the producer:
+
+    gradle producer:run
+    
+This will basicly publish one message and from the consumer you will see the 
+message fail 3 times before finally being dumped to the coonsole by the error
+queue listener.
