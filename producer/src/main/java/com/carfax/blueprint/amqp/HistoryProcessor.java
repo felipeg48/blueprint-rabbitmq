@@ -1,4 +1,4 @@
-package com.carfax.blueprint.amqp;
+@package com.carfax.blueprint.amqp;
 
 import org.apache.log4j.spi.LoggerRepository;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ public class HistoryProcessor {
 		this.amqpTemplate = amqpTemplate;
 	}
 	
-	@Scheduled(fixedRate=1000)
+	@Scheduled(fixedDelay=1000)
 	public void process(){
 		Vehicle vehicle = vehicleSource.next();
 		if(vehicle != null){
