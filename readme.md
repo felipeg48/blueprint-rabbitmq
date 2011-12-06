@@ -1,32 +1,20 @@
-# RabbitMQ Blueprint Project
-This is a blueprint project illustrating how to use rabbitMQ on the JVM. It
-uses a multi-module project setup and will have branches dedicated to different
-topics (different exchange types, messaging patterns, within a web container,
-etc).
+# RabbitMQ Blueprint Project: Error Handling
+This branch illustrates how to use spring-amqp's hidden features to achieve 
+pragmatic error handling. It makes use of StatefulRetryOperationsInterceptor
+to configure the listener to retry a failed message every 5 seconds and on the 
+3rd failure republishes the message to an error exchange with the exception
+stacktrace in a new header field named x-exception.
 
-## Checking Out the Examples
-The master branch has two tagged examples that are meant to be taken as a
-starting point to understanding spring-amqp. 
-
-For an example of a simple message listener with no marshalling, run:
-
-    git checkout simple
-
-For an example of using MessageListenerAdapter to have a POJO receive a message
-as a java object run:
-  
-    git checkout message-listener-adapter
-
-## Running It
+## Running it
 Whenever you check out a tag or branch the first thing you should do is run 
 
     gradle eclipse
+or
+    gradle idea
 
-Fromt he root of the project. Then from eclipse import the directory and it
-should bring all of the subprojects in to your workspace.
+From the root of the project to build the project files for your preferred IDE.
 
-Running the ApplicationConfig from the consumer will start the consumer up,
-running the same class from the producer will start the producer up and publish
-some test messages.
-
-Have fun!
+Running the consumer:
+    gradle consumer:jettyRun
+    
+Running the producer requires you to run the AppConfig class from your IDE (for now) to publish a message.
