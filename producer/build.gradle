@@ -1,9 +1,10 @@
-apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'application'
 
 mainClassName='com.carfax.blueprint.amqp.ApplicationConfig'
 
 dependencies {
+	groovy 'org.codehaus.groovy:groovy-all:1.8.4'
 	compile project(':domain')
 	compile "org.springframework.amqp:spring-amqp:$springAmqpVersion"
 	compile "org.springframework.amqp:spring-rabbit:$springAmqpVersion"

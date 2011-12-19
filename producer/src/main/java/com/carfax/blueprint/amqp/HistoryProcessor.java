@@ -18,7 +18,7 @@ public class HistoryProcessor {
 		this.amqpTemplate = amqpTemplate;
 	}
 	
-	@Scheduled(fixedRate=1000)
+	@Scheduled(fixedRate=1)
 	public void process(){
 		Vehicle vehicle = vehicleSource.next();
 		if(vehicle != null){
