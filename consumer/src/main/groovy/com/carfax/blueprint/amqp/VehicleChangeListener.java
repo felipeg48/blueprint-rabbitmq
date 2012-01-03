@@ -7,6 +7,5 @@ public class VehicleChangeListener {
 	private static final Logger LOG = LoggerFactory.getLogger(VehicleChangeListener.class);
 	public void handleMessage(final Vehicle vehicle){
 		LOG.info("Received " + vehicle.toString());
-		throw new RuntimeException("BOOM!");
 	}
 }

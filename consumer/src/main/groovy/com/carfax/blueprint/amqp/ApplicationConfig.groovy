@@ -3,8 +3,6 @@ package com.carfax.blueprint.amqp;
 
 import groovy.util.logging.Slf4j
 
-import javax.annotation.Resource
-
 import org.springframework.amqp.core.Binding
 import org.springframework.amqp.core.BindingBuilder
 import org.springframework.amqp.core.MessageListener
@@ -20,9 +18,9 @@ import org.springframework.amqp.support.converter.JsonMessageConverter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.context.annotation.DependsOn
 import org.springframework.context.annotation.ImportResource
-import org.springframework.jmx.export.MBeanExporter
+import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.FixedBackOffPolicy
 import org.springframework.retry.interceptor.StatefulRetryOperationsInterceptor
 import org.springframework.retry.policy.SimpleRetryPolicy
@@ -97,10 +95,10 @@ public class ApplicationConfig {
 	}
 	@Bean
 	@DependsOn("container")
-	MBeanExporter exporter(){
-		MBeanExporter exporter = new MBeanExporter();
-		exporter.beans = ['bean:name=testBean': container()]
-		return exporter;
+	MBeanExporterPostProcessor exporter(){
+		def mbeans = new MBeanExporterPostProcessor(namespace:"com.carfax.amqp")
+		mbeans.setBeanType(SimpleMessageListenerContainer, Queue)
+		mbeans
 	}
 	@Bean
 	public StubMessageRecoverer stubMessageRecoverer() {
