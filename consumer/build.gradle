@@ -11,7 +11,8 @@ dependencies {
 			
 	compile "org.slf4j:jcl-over-slf4j:$slf4jVersion",
 			"org.slf4j:slf4j-log4j12:$slf4jVersion"
-			
+   runtime "mx4j:mx4j-tools:2.1.1"
+   runtime "mx4j:mx4j:2.1.1"
 	testCompile "junit:junit:4.8.2",
 		"org.mockito:mockito-all:1.8.5",
 		"org.springframework:spring-test:$springVersion"

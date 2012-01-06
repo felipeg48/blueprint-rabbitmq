@@ -2,10 +2,11 @@ package com.carfax.blueprint.amqp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.stereotype.Service;
+@Service
 public class VehicleChangeListener {
 	private static final Logger LOG = LoggerFactory.getLogger(VehicleChangeListener.class);
 	public void handleMessage(final Vehicle vehicle){
-		LOG.info("Received " + vehicle.toString());
+		LOG.info("Received message");
 	}
 }

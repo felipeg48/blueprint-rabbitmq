@@ -3,7 +3,11 @@ subprojects {
    repositories {
      // mavenRepo urls: 'http://resolver/all'
      mavenCentral()
-     mavenRepo urls: ['http://maven.springframework.org/milestone/', 'http://repository.springsource.com/maven/bundles/release/']
+     mavenRepo urls: [
+        'http://maven.springframework.org/milestone/', 
+        'http://repository.springsource.com/maven/bundles/release/',
+        'http://repository.sonatype.org/content/shadows/centralm1/'
+        ]
    }
 
    task "create-dirs" << {

@@ -8,14 +8,19 @@ public class UnsentMessage implements Serializable{
 	private static final long serialVersionUID = 712116599485842405L;
 	private String routingKey;
 	private String exchange;
-	private Message message;
-	
-	public UnsentMessage(String routingKey, String exchange, Message message) {
+	private SerializableMessage message;
+	private String id;
+   public UnsentMessage(String routingKey, String exchange, Message message) {
 		super();
 		this.routingKey = routingKey;
 		this.exchange = exchange;
-		this.message = message;
+		this.message = new SerializableMessage(message);
+		this.id = message.getMessageProperties().getMessageId();
 	}
+   
+   public String getId() {
+      return id;
+   }
 	public String getRoutingKey() {
 		return routingKey;
 	}
@@ -29,9 +34,10 @@ public class UnsentMessage implements Serializable{
 		this.exchange = exchange;
 	}
 	public Message getMessage() {
-		return message;
+		return message.toMessage();
 	}
 	public void setMessage(Message message) {
-		this.message = message;
+		this.message = new SerializableMessage(message);
 	}
+	
 }

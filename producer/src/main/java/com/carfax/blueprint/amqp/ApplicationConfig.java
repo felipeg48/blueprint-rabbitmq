@@ -1,32 +1,36 @@
 package com.carfax.blueprint.amqp;
 
 import javax.annotation.PostConstruct;
+import javax.management.MBeanServer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionListener;
 import org.springframework.beans.factory.annotation.Autowire;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.*;
 import org.springframework.scheduling.annotation.ScheduledAnnotationBeanPostProcessor;
 
 @Configuration
 @ImportResource("classpath:producer-context.xml")
+@ComponentScan("com.carfax.blueprint.amqp")
 public class ApplicationConfig {
 	private static final Logger log = LoggerFactory.getLogger(ApplicationConfig.class);
 	
 	@Autowired
-	UnsentMessageHandler unsentMessageHandler;
+	ConnectionListener unsentMessageHandler;
 	@Autowired
 	ConnectionFactory connectionFactory;
-	
+	@Autowired
+	MBeanServer mbeanServer;
 	@PostConstruct
 	public void doAfter(){
 		connectionFactory.addConnectionListener(unsentMessageHandler);
+		
+		log.info("There are {} mbeans", mbeanServer.getMBeanCount());
+
 	}
 	
 	
@@ -36,14 +40,22 @@ public class ApplicationConfig {
 	}
 	
 	@Bean
+	public MBeanExporterPostProcessor exporter(){
+	   MBeanExporterPostProcessor exporter = new MBeanExporterPostProcessor();
+	   exporter.setBeanType(LocalMessageStore.class, MessageMetricsTracker.class);
+	   exporter.setNamespace("com.carfax.blueprint.amqp");
+	   exporter.setServer(mbeanServer);
+      return exporter;
+	}
+	@Bean
 	VehicleSource vehicleSource(){
 		VehicleSource source = new VehicleSource();
 		
-		source.add(newVehicle(pad("Toyota"), "Tercel", "1995"));
-		source.add(newVehicle(pad("Ford"), "Mustang", "2008"));
-		source.add(newVehicle("Honda", pad("Prelude"), "1985"));
+		source.add(newVehicle("Toyota", "Tercel", "1995"));
+		source.add(newVehicle("Ford", "Mustang", "2008"));
+		source.add(newVehicle("Honda", "Prelude", "1985"));
 		source.add(newVehicle("Honda", "Civic", "1999"));
-		source.add(newVehicle(pad("Nissan"), pad("Altima"), pad("2003")));
+		source.add(newVehicle("Nissan", "Altima", "2003"));
 		return source;
 	}
 	

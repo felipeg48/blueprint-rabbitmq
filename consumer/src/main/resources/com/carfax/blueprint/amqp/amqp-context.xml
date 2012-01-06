@@ -3,15 +3,17 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:rabbit="http://www.springframework.org/schema/rabbit"
 	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-1.0.xsd
-		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
-	
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+	<context:component-scan base-package="com.carfax.blueprint.amqp"></context:component-scan>
 	<rabbit:connection-factory id="amqpConnectionFactory"/>
 	<rabbit:admin connection-factory="amqpConnectionFactory" auto-startup="true"/>
 	
 	<rabbit:queue id="queue" name="vehicle.changes"></rabbit:queue>
 	<rabbit:listener-container 
-		concurrency="2"
+		concurrency="10"  error-handler="loggingErrorHandler"
 		connection-factory="amqpConnectionFactory">
 		<rabbit:listener ref="messageListener" queue-names="vehicle.changes"/>
 	</rabbit:listener-container>
@@ -20,7 +22,6 @@
 		p:delegate-ref="vehicleChangeListener"
 		p:messageConverter-ref="messageConverter"/>
 	
-	<bean id="vehicleChangeListener" class="com.carfax.blueprint.amqp.VehicleChangeListener"/>
 	<bean id="messageConverter" class="org.springframework.amqp.support.converter.JsonMessageConverter"/>	
 
 </beans>
