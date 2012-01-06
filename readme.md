@@ -15,7 +15,7 @@ For an example of a simple message listener with no marshalling, run:
 For an example of using MessageListenerAdapter to have a POJO receive a message
 as a java object run:
   
-    git checkout message-listener-adapter
+    git checkout -b message-listener-adapter origin/message-listener-adapter
 
 ## Running It
 All of these examples use [gradle](http://www.gradle.org) to build. 
@@ -50,6 +50,8 @@ exchange
 with a single exchange
 * xml-based-config - an example using XML instead of Java based Spring Configuration
 * dead-letter-example - An example of implementing a dead letter queue (http://eaipatterns.com/DeadLetterChannel.html) using an Advice in the SimpleMessageListenerContainer
+* publisher-buffering - Example using a java.util.Queue to buffer messages
+* publisher-buffering-ehcache - The same, but using ehcache.
                     
 ## Installing RabbitMQ
 Don't have rabbitMQ installed? Either change the host to dev.rabbitmq.com for the public rabbitMQ broker or follow the instructions on the site for [windows](http://www.rabbitmq.com/install.html#windows) or [linux](http://www.rabbitmq.com/install.html#rpm).
